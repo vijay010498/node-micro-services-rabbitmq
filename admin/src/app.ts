@@ -18,16 +18,47 @@ createConnection().then((db) => {
   );
   app.use(express.json());
 
+  // Get All Products
   app.get("/api/products", async (req: Request, res: Response) => {
     const products = await productRepository.find();
     res.json(products);
   });
 
+  // Create A New Product
   app.post("/api/products", async (req: Request, res: Response) => {
     const product = await productRepository.create(req.body);
     const result = await productRepository.save(product);
     return res.send(result);
   });
+
+  // Get One Product
+  app.get("/api/products/:id", async (req: Request, res: Response) => {
+    const product = await productRepository.findOne(req.params.id);
+    return res.send(product);
+  });
+
+  // Update A Product
+  app.put("/api/products/:id", async (req: Request, res: Response) => {
+    const product = await productRepository.findOne(req.params.id);
+    productRepository.merge(product, req.body);
+    const result = await productRepository.save(product);
+    return res.send(result);
+  });
+
+  // Delete A product
+  app.delete("/api/products/:id", async (req: Request, res: Response) => {
+    const result = await productRepository.delete(req.params.id);
+    return res.send(result);
+  });
+
+  //Like A product
+  app.post("/api/products/:id/like", async (req: Request, res: Response) => {
+    const product = await productRepository.findOne(req.params.id);
+    product.likes++;
+    const result = await productRepository.save(product);
+    return res.send(result);
+  });
+
   app.listen(8000, () => {
     console.log("Server listening on port 8000");
   });
